@@ -91,7 +91,7 @@ export default function ApplicationHelper({ support }) {
     <section className="mt-8 border-t border-[#ebebeb] pt-7" aria-labelledby="application-helper-title">
       <div className="rounded-2xl border border-[#d1fae5] bg-[#f0fdf4] p-5 sm:p-6">
         <h2 id="application-helper-title" className="text-xl font-bold text-[#222222]">
-          Get ready to apply
+          Get ready to apply for {support.name}
         </h2>
         <p className="mt-2 text-base text-[#222222]">
           Fill in this short form before going to the official application. You can type, or use the microphone to say your answer.
