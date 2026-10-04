@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Menu, User, Heart } from "lucide-react";
+import { Menu, User, Heart, Info } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -28,6 +28,7 @@ export default function AirbnbHeader({ children }) {
             <DropdownMenuContent align="end" className="rounded-2xl w-44">
               <DropdownMenuItem asChild><Link to="/profile"><User className="w-4 h-4 mr-2" /> My profile</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link to="/saved"><Heart className="w-4 h-4 mr-2" /> Saved</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/about"><Info className="w-4 h-4 mr-2" /> Why GrantGuide</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link to="/">Home</Link></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
