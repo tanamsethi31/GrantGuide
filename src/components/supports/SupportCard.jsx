@@ -1,51 +1,42 @@
 import React, { useState } from "react";
-import { Heart, Phone, ExternalLink } from "lucide-react";
-import { Image } from "@/components/ui/image";
+import { ExternalLink, ArrowRight } from "lucide-react";
 import { pickImage } from "@/lib/supportImages";
+import { categoryLabel } from "@/lib/categories";
+import SaveButton from "@/components/supports/SaveButton";
 import SupportDetailDialog from "@/components/supports/SupportDetailDialog";
 
-export default function SupportCard({ support, saved, onToggle, index = 0, county = "" }) {
+export default function SupportCard({ support, saved, onToggle, index = 0 }) {
   const [open, setOpen] = useState(false);
   const image = pickImage(support, index);
   return (
-    <div className="w-full">
-      <div onClick={() => setOpen(true)} className="relative aspect-square rounded-2xl overflow-hidden bg-[#f2f2f2] cursor-pointer">
-        <Image src={image} alt={support.name} className="w-full h-full object-cover" />
-        <span className="absolute top-3 left-3 bg-white rounded-full px-3 py-1 text-xs font-semibold text-[#222222] shadow-sm">
-          {support.category || "Support"}
+    <article className="w-full h-full flex flex-col rounded-3xl border border-border bg-card overflow-hidden hover:shadow-lg transition">
+      <div onClick={() => setOpen(true)} className="relative aspect-[4/3] bg-muted cursor-pointer">
+        <img src={image} alt="" loading="lazy" className="w-full h-full object-cover" />
+        <span className="absolute top-3 left-3 bg-white rounded-full px-3 py-1 text-sm font-bold text-foreground shadow-sm">
+          {categoryLabel(support.category)}
         </span>
-        <button
-          onClick={(e) => { e.stopPropagation(); onToggle(support); }}
-          aria-label={saved ? "Remove from saved" : "Save"}
-          className="absolute top-3 right-3 p-1 transition active:scale-90"
-        >
-          <Heart
-            className={`w-6 h-6 drop-shadow ${saved ? "fill-[#FF385C] text-[#FF385C]" : "fill-black/50 text-white"}`}
-            strokeWidth={2}
-          />
-        </button>
+        <SaveButton saved={saved} onToggle={() => onToggle(support)} className="absolute top-3 right-3" />
       </div>
-      <button onClick={() => setOpen(true)} className="mt-3 text-left w-full">
-        <p className="text-[15px] font-semibold text-[#222222] leading-snug hover:underline">{support.name}</p>
-        <p className="text-sm text-[#717171] line-clamp-2 mt-0.5">{support.help}</p>
-        <p className="text-sm font-medium text-[#222222] underline mt-1">View details</p>
-      </button>
-      <div className="flex items-center gap-4 mt-2 text-sm text-[#222222]">
-        {support.phone && (
-          <a href={`tel:${support.phone.replace(/[^+\d]/g, "")}`} className="inline-flex items-center gap-1.5 font-medium underline-offset-2 hover:underline">
-            <Phone className="w-4 h-4" /> {support.phone}
-          </a>
-        )}
-        {support.website && (
-          <a href={support.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[#717171] underline-offset-2 hover:underline">
-            <ExternalLink className="w-4 h-4" /> Website
-          </a>
-        )}
+      <div className="flex flex-col flex-1 p-5">
+        <h3 className="text-lg font-bold leading-snug">
+          <button onClick={() => setOpen(true)} className="text-left hover:underline">{support.name}</button>
+        </h3>
+        <p className="text-muted-foreground mt-1 line-clamp-3">{support.help}</p>
+        <div className="mt-auto pt-4 flex items-center justify-between gap-3">
+          <button onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline">
+            View details <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </button>
+          {support.website && (
+            <a href={support.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:underline">
+              <ExternalLink className="w-4 h-4" aria-hidden="true" /> Website
+            </a>
+          )}
+        </div>
       </div>
       <SupportDetailDialog
         open={open} onOpenChange={setOpen} support={support} image={image}
-        saved={saved} onToggle={onToggle} county={county}
+        saved={saved} onToggle={onToggle}
       />
-    </div>
+    </article>
   );
 }

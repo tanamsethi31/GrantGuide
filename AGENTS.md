@@ -1,34 +1,19 @@
 # AGENTS.md
 
-## Project Context
+## Project context
 
-This is a Base44 app repository. Treat it as user-owned application code, keep changes focused on the user's request, and preserve existing project conventions.
+GrantGuide is a React + Vite app that helps people in Ireland find grants and supports they may be owed. Start with `README.md` for setup.
 
-Start with `README.md` for local setup, environment variables, and publish workflow.
+Many users are older or not confident online, so the UI favours large text (18px root), plain English, high contrast and big tap targets. Keep it that way.
 
-## Base44 References
+## Key files
 
-- CLI overview: https://docs.base44.com/developers/references/cli/get-started/overview.md
-- Agent skills: https://docs.base44.com/developers/backend/overview/skills.md
+- `src/index.css`: design tokens (teal primary, Atkinson Hyperlegible font, 18px root size). Use the token classes (`bg-primary`, `text-muted-foreground`, `border-border`...) rather than hex colours.
+- `src/data/grants.js`: sample grant data. Don't add amounts or eligibility rules without an official source.
+- `src/lib/searchGrants.js`: local search and matching.
+- `src/hooks/useSaved.js`, `src/lib/localStore.js`: browser-only storage until accounts exist.
 
-If your agent supports Agent Skills, install or update Base44 skills before Base44-specific work:
+## Working notes
 
-```bash
-npx skills add base44/skills
-```
-
-## Key Files
-
-- `src/`: frontend application source.
-- `src/api/base44Client.js`: frontend Base44 SDK client.
-- `vite.config.js`: Vite config and Base44 Vite plugin setup.
-- `.env.local`: local-only environment values; never commit secrets.
-
-## Working Notes
-
-- Use `base44 dev` as the default local development command when you need the local Base44 backend. It can run the backend and frontend together.
-- When docs or code mention the frontend being started automatically, that usually means the Base44 project config includes `site.serveCommand`, for example `"serveCommand": "npm run dev"` in `base44/config.jsonc`.
-- Use `npm run dev` only for frontend-only work against the hosted Base44 backend.
-- Prefer the existing Base44 CLI workflow over adding new npm scripts for Base44-specific tasks.
-- Reuse the existing SDK client and Vite plugin patterns before adding new Base44 integration paths.
-- Run the relevant checks from `package.json` before finishing code changes.
+- `npm run dev` to run, `npm run build` and `npm run lint` before finishing a change.
+- Never commit `.env` files or secrets.

@@ -1,45 +1,18 @@
 import { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { readStore, writeStore } from "@/lib/localStore";
 
+const KEY = "grantguide.saved";
+
+// Saved grants live in this browser until accounts exist.
 export default function useSaved() {
-  const [items, setItems] = useState([]);
-  const [loaded, setLoaded] = useState(false);
-  const [authed, setAuthed] = useState(true);
+  const [items, setItems] = useState(() => readStore(KEY, []));
 
-  useEffect(() => {
-    (async () => {
-      const ok = await base44.auth.isAuthenticated();
-      setAuthed(ok);
-      if (ok) setItems(await base44.entities.SavedSupport.list("-created_date"));
-      setLoaded(true);
-    })();
-  }, []);
+  useEffect(() => writeStore(KEY, items), [items]);
 
-  const isSaved = (s) => items.some((i) => i.name === s.name);
+  const isSaved = (g) => items.some((i) => i.name === g.name);
 
-  const toggle = async (s, county = "") => {
-    if (!(await base44.auth.isAuthenticated())) {
-      base44.auth.redirectToLogin(window.location.href);
-      return;
-    }
-    const existing = items.find((i) => i.name === s.name);
-    if (existing) {
-      setItems((cur) => cur.filter((i) => i.name !== s.name));
-      if (existing.id) await base44.entities.SavedSupport.delete(existing.id);
-      return;
-    }
-    const data = {
-      name: s.name,
-      category: s.category || "Other",
-      help: s.help || "",
-      phone: s.phone || "",
-      website: s.website || "",
-      county: s.county || county || "",
-    };
-    setItems((cur) => [data, ...cur]);
-    const rec = await base44.entities.SavedSupport.create(data);
-    setItems((cur) => cur.map((i) => (i.name === data.name && !i.id ? rec : i)));
-  };
+  const toggle = (g) =>
+    setItems((cur) => (cur.some((i) => i.name === g.name) ? cur.filter((i) => i.name !== g.name) : [g, ...cur]));
 
-  return { items, loaded, authed, isSaved, toggle };
+  return { items, isSaved, toggle };
 }

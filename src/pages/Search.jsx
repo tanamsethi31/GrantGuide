@@ -1,65 +1,49 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
-import AirbnbHeader from "@/components/layout/AirbnbHeader";
-import PillSearch from "@/components/search/PillSearch";
+import PageShell from "@/components/layout/PageShell";
+import AskBox from "@/components/search/AskBox";
+import FilterBar from "@/components/search/FilterBar";
 import ResultsGrid from "@/components/supports/ResultsGrid";
 import useSaved from "@/hooks/useSaved";
+import { searchGrants } from "@/lib/searchGrants";
+import { readSearchParams, toSearchParams } from "@/lib/searchParams";
+import { categoryLabel } from "@/lib/categories";
+
+function heading(count, { query, category, location }) {
+  const what = category === "Any" ? "grants" : `${categoryLabel(category).toLowerCase()} grants`;
+  const where = location ? ` in Co. ${location}` : " across Ireland";
+  const about = query ? ` for “${query}”` : "";
+  return `${count} ${count === 1 ? what.replace(/s$/, "") : what}${about}${where}`;
+}
 
 export default function Search() {
-  const [params] = useSearchParams();
-  const [query, setQuery] = useState(params.get("q") || "");
-  const [location, setLocation] = useState(params.get("location") || "");
-  const [category, setCategory] = useState(params.get("category") || "Any");
-  const [who, setWho] = useState((params.get("who") || "").split(",").filter(Boolean));
-  const [loading, setLoading] = useState(false);
-  const [supports, setSupports] = useState(null);
+  const [params, setParams] = useSearchParams();
+  const state = readSearchParams(params);
+  const [draft, setDraft] = useState(state.query);
   const saved = useSaved();
-  const started = useRef(false);
 
-  const run = async (o = {}) => {
-    const cat = o.category ?? category;
-    setLoading(true);
-    setSupports(null);
-    const res = await base44.functions.invoke("findSupports", {
-      query: o.q ?? query,
-      location,
-      category: cat === "Any" ? "" : cat,
-      details: who.join(". "),
-    });
-    setSupports(res.data.supports || []);
-    setLoading(false);
-  };
+  // Follow the URL when it changes from outside the box (a tile, a county link, back button).
+  useEffect(() => setDraft(state.query), [state.query]);
 
-  useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    if (query || category !== "Any" || location || who.length) run();
-  }, []);
-
-  const onTab = (c) => {
-    setCategory(c);
-    run({ category: c });
-  };
+  const update = (patch) => setParams(toSearchParams({ ...state, ...patch }));
+  const results = useMemo(() => searchGrants(state), [params]);
 
   return (
-    <div className="min-h-screen bg-white font-body text-[#222222]">
-      <AirbnbHeader tab={category} onTab={onTab}>
-        <PillSearch
-          location={location} setLocation={setLocation}
-          query={query} setQuery={setQuery}
-          who={who} setWho={setWho}
-          onSearch={run}
-        />
-      </AirbnbHeader>
-      <main className="max-w-7xl mx-auto px-5 sm:px-10 py-8 pb-20">
-        {supports && supports.length > 0 && (
-          <h1 className="text-xl font-semibold mb-6">
-            {supports.length} supports{location ? ` in Co. ${location}` : " across Ireland"}
-          </h1>
-        )}
-        <ResultsGrid loading={loading} supports={supports} saved={saved} county={location} />
-      </main>
-    </div>
+    <PageShell>
+      <section className="bg-secondary">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8">
+          <AskBox query={draft} setQuery={setDraft} onSearch={(o = {}) => update({ query: (o.q ?? draft).trim() })} />
+          <FilterBar
+            category={state.category} setCategory={(category) => update({ category })}
+            location={state.location} setLocation={(location) => update({ location })}
+            who={state.who} setWho={(who) => update({ who })}
+          />
+        </div>
+      </section>
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 pb-20">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-8" aria-live="polite">{heading(results.length, state)}</h1>
+        <ResultsGrid supports={results} saved={saved} />
+      </div>
+    </PageShell>
   );
 }

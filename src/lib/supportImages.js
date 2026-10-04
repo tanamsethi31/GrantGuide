@@ -1,3 +1,5 @@
+// Photos generated in the original prototype, still hosted on Base44's image CDN.
+// TODO: copy these into /public/images so the app doesn't depend on that CDN.
 const BASE = "https://media.base44.com/images/public/6ac0e51cd622b222468467a3/";
 const u = (f) => BASE + f + "_generated_image.png";
 
@@ -16,12 +18,14 @@ const POOLS = {
   Energy: [IMG.energy, u("e429a9156"), u("abb1e4ce1"), u("b51a457ac"), u("5bea659e3"), u("6a965a3e3")],
   Housing: [IMG.housing, u("cfa498184"), IMG.money],
   Elderly: [IMG.elderly, u("ba244538b"), IMG.health, IMG.travel],
+  Family: [IMG.family, IMG.community],
+  Health: [IMG.health, IMG.community],
+  Money: [IMG.money, IMG.community],
   Other: [IMG.family, IMG.community, IMG.health, IMG.money, IMG.travel],
 };
 
-const hash = (s) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
-
+// By position, so neighbouring cards in the same topic get different photos.
 export function pickImage(support, index = 0) {
   const pool = POOLS[support.category] || POOLS.Other;
-  return pool[(hash(support.name || "") + index) % pool.length];
+  return pool[index % pool.length];
 }
