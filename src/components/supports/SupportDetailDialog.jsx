@@ -3,6 +3,7 @@ import { ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Fact, Section } from "@/components/supports/DetailSection";
 import { HeartIcon } from "@/components/supports/SupportCard";
+import ApplicationHelper from "@/components/supports/ApplicationHelper";
 import { categoryLabel } from "@/lib/categories";
 import { formatEur, formatDate, typeLabel, meansLabel, isClosed } from "@/lib/grantDisplay";
 
@@ -58,6 +59,8 @@ export default function SupportDetailDialog({ open, onOpenChange, support: g, im
               <Fact label="Deadline">{g.deadline ? formatDate(g.deadline) : null}</Fact>
             </ul>
           </Section>
+
+          <ApplicationHelper support={g} />
 
           <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[#ebebeb] mt-2">
             {g.website && (
