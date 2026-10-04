@@ -12,7 +12,7 @@ export default function ResultsGrid({ supports, saved, emptyText }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {supports.map((s, i) => (
-        <SupportCard key={s.name} index={i} support={s} saved={saved.isSaved(s)} onToggle={saved.toggle} />
+        <SupportCard key={s.id} index={i} support={s} saved={saved.isSaved(s)} onToggle={saved.toggle} />
       ))}
     </div>
   );

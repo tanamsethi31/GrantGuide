@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { IMG } from "@/lib/supportImages";
 
 const TILES = [
-  { label: "Energy bills", image: IMG.energy, to: "/search?category=Energy" },
+  { label: "Energy and home", image: IMG.energy, to: "/search?category=Energy and environment" },
   { label: "Housing", image: IMG.housing, to: "/search?category=Housing" },
-  { label: "Older people", image: IMG.elderly, to: "/search?category=Elderly" },
-  { label: "Families", image: IMG.family, to: "/search?category=Family" },
-  { label: "Health and carers", image: IMG.health, to: "/search?category=Health" },
-  { label: "Travel", image: IMG.travel, to: "/search?q=free travel" },
-  { label: "Money help", image: IMG.money, to: "/search?category=Money" },
+  { label: "Older people", image: IMG.elderly, to: "/search?q=older people pension" },
+  { label: "Money and family", image: IMG.family, to: "/search?category=Income and family" },
+  { label: "Health", image: IMG.health, to: "/search?category=Health" },
+  { label: "Disability and carers", image: IMG.community, to: "/search?category=Disability and caring" },
+  { label: "Transport", image: IMG.travel, to: "/search?category=Transport" },
+  { label: "Tax relief", image: IMG.money, to: "/search?category=Tax" },
 ];
 
 export default function ExploreTiles() {

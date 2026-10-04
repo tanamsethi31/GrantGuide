@@ -10,6 +10,7 @@ import useSaved from "@/hooks/useSaved";
 import { searchGrants } from "@/lib/searchGrants";
 import { toSearchParams } from "@/lib/searchParams";
 import { categoryLabel } from "@/lib/categories";
+import { isClosed } from "@/lib/grantDisplay";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function Home() {
 
   const filters = { category, location, who };
   const search = (o = {}) => navigate(`/search?${toSearchParams({ ...filters, query: o.q ?? query })}`);
-  const featured = useMemo(() => searchGrants(filters).slice(0, 10), [category, location, who]);
+  const featured = useMemo(() => searchGrants(filters).filter((g) => !isClosed(g)).slice(0, 12), [category, location, who]);
 
   return (
     <PageShell>
@@ -47,7 +48,7 @@ export default function Home() {
         </div>
       </section>
       <CardRow
-        title={category === "Any" ? "Grants to explore" : `${categoryLabel(category)} grants`}
+        title={category === "Any" ? "Schemes to explore" : categoryLabel(category)}
         href={`/search?${toSearchParams(filters)}`}
         supports={featured}
         saved={saved}

@@ -25,7 +25,7 @@ export default function CardRow({ title, href, supports, saved }) {
       ) : (
         <div ref={ref} className="flex gap-5 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {supports.map((s, i) => (
-            <div key={s.name} className="w-72 shrink-0">
+            <div key={s.id} className="w-72 shrink-0">
               <SupportCard index={i} support={s} saved={saved.isSaved(s)} onToggle={saved.toggle} />
             </div>
           ))}

@@ -1,212 +1,46 @@
-// SAMPLE DATA, a stand-in until the GrantGuide grants database exists.
-// Every link was checked on 2026-10-04. Summaries are deliberately general:
-// no amounts or income limits, because those change and must come from the
-// real database with a source and date.
-//
-// counties: [] means nationwide.
-// who: tags from WHO_OPTIONS / EXTRA_GROUPS, used to rank matches.
+// Turns the catalogue snapshot (exported from the Notion "Schemes & Benefits
+// Catalogue", see ./catalogue/README.md) into the shape the UI uses.
+// The snapshot is the source of truth: never edit amounts or rules here.
+import catalogue from "./catalogue/schemes.json";
+import { COUNTIES } from "@/lib/counties";
+import { tagsFor } from "@/lib/tags";
 
-const CI = "https://www.citizensinformation.ie/en";
+export const CATALOGUE_META = catalogue.meta;
 
-export const GRANTS = [
-  {
-    id: "warmer-homes",
-    name: "Warmer Homes Scheme",
-    category: "Energy",
-    help: "Free home energy upgrades, like attic and wall insulation, for homeowners getting certain social welfare payments.",
-    website: `${CI}/housing/housing-grants-and-schemes/grants-for-home-renovations-and-improvements/warmer-homes-scheme/`,
-    counties: [],
-    who: ["Own my home", "On social welfare", "Old or poorly insulated home", "Low income"],
-    keywords: ["insulation", "heating", "cold", "seai", "free upgrade", "warm"],
-  },
-  {
-    id: "better-energy-homes",
-    name: "Home energy upgrade grants",
-    category: "Energy",
-    help: "Grants towards insulation, heat pumps and other energy upgrades for your home.",
-    website: `${CI}/housing/housing-grants-and-schemes/grants-for-home-renovations-and-improvements/better-energy-homes-scheme/`,
-    counties: [],
-    who: ["Own my home", "Old or poorly insulated home", "Oil or solid fuel heating"],
-    keywords: ["insulation", "heat pump", "seai", "better energy", "upgrade", "heating"],
-  },
-  {
-    id: "solar-panels",
-    name: "Grant for solar panels",
-    category: "Energy",
-    help: "A grant towards the cost of putting solar panels on your home.",
-    website: `${CI}/housing/housing-grants-and-schemes/grants-for-home-renovations-and-improvements/grants-for-solar-panels/`,
-    counties: [],
-    who: ["Own my home"],
-    keywords: ["solar", "electricity", "seai", "panels", "bills"],
-  },
-  {
-    id: "fuel-allowance",
-    name: "Fuel Allowance",
-    category: "Energy",
-    help: "A weekly payment during the colder months to help with heating, for people on certain long-term social welfare payments.",
-    website: `${CI}/social-welfare/extra-social-welfare-benefits/fuel-allowance/`,
-    counties: [],
-    who: ["On social welfare", "Over 66", "Receive State Pension", "Low income", "Living alone"],
-    keywords: ["heating", "fuel", "winter", "bills", "cold", "oil", "gas"],
-  },
-  {
-    id: "household-benefits",
-    name: "Household Benefits Package",
-    category: "Elderly",
-    help: "Help with your electricity or gas bill and a free TV licence, mainly for people aged 70 or over or on certain payments.",
-    website: `${CI}/social-welfare/extra-social-welfare-benefits/household-benefits-package/`,
-    counties: [],
-    who: ["Over 66", "Receive State Pension", "Carer for someone", "Have a disability"],
-    keywords: ["electricity", "gas", "tv licence", "bills", "pension"],
-  },
-  {
-    id: "hap",
-    name: "Housing Assistance Payment (HAP)",
-    category: "Housing",
-    help: "Your local council pays your rent to your landlord if you qualify for social housing and rent privately.",
-    website: `${CI}/housing/renting-a-home/help-with-renting/housing-assistance-payment/`,
-    counties: [],
-    who: ["Renting", "Low income", "On social welfare", "Behind on rent or bills"],
-    keywords: ["rent", "landlord", "council", "renting", "social housing"],
-  },
-  {
-    id: "housing-adaptation",
-    name: "Housing Adaptation Grant for People with a Disability",
-    category: "Housing",
-    help: "Money from your council to make your home suit someone with a disability, like a ramp or a downstairs bathroom.",
-    website: `${CI}/housing/housing-grants-and-schemes/housing-supports-for-older-people-and-people-with-disabilities/housing-adaptation-grant-for-people-with-disability/`,
-    counties: [],
-    who: ["Have a disability", "Need home adaptations", "Wheelchair user", "Carer for someone"],
-    keywords: ["disability", "ramp", "bathroom", "adapt", "wheelchair", "council"],
-  },
-  {
-    id: "housing-aid-older",
-    name: "Housing Aid for Older People",
-    category: "Elderly",
-    help: "A council grant to help older people carry out essential repairs to their home.",
-    website: `${CI}/housing/housing-grants-and-schemes/housing-supports-for-older-people-and-people-with-disabilities/housing-aid-for-older-people-grant/`,
-    counties: [],
-    who: ["Over 66", "Own my home", "Retired"],
-    keywords: ["repairs", "roof", "windows", "older", "council", "home"],
-  },
-  {
-    id: "mobility-aids",
-    name: "Mobility Aids Grant",
-    category: "Elderly",
-    help: "A council grant for small changes at home, like grab rails or a stair lift, for older people or people with a disability.",
-    website: `${CI}/housing/housing-grants-and-schemes/housing-supports-for-older-people-and-people-with-disabilities/mobility-aids-grant-scheme/`,
-    counties: [],
-    who: ["Over 66", "Have a disability", "Need home adaptations", "Wheelchair user"],
-    keywords: ["stair lift", "grab rails", "mobility", "council", "stairs"],
-  },
-  {
-    id: "vacant-property",
-    name: "Vacant Property Refurbishment Grant",
-    category: "Housing",
-    help: "A grant to do up a vacant or derelict home so you can live in it or rent it out.",
-    website: `${CI}/housing/housing-grants-and-schemes/local-authority-housing-grants-and-supports/vacant-property-refurbishment-grant/`,
-    counties: [],
-    who: ["Own my home"],
-    keywords: ["vacant", "derelict", "renovate", "refurbish", "empty house"],
-  },
-  {
-    id: "help-to-buy",
-    name: "Help to Buy",
-    category: "Housing",
-    help: "A tax refund to help first-time buyers with the deposit on a newly built home.",
-    website: "https://www.revenue.ie/en/property/help-to-buy-incentive/index.aspx",
-    counties: [],
-    who: ["Renting"],
-    keywords: ["first-time buyer", "deposit", "buy a house", "mortgage", "new build", "revenue"],
-  },
-  {
-    id: "free-travel",
-    name: "Free Travel",
-    category: "Elderly",
-    help: "Free public transport for everyone aged 66 and over who lives in Ireland, and for some people with a disability and carers.",
-    website: `${CI}/social-welfare/extra-social-welfare-benefits/free-travel/`,
-    counties: [],
-    who: ["Over 66", "Have a disability", "Carer for someone", "Receive State Pension"],
-    keywords: ["bus", "train", "travel pass", "transport", "luas"],
-  },
-  {
-    id: "living-alone",
-    name: "Living Alone Increase",
-    category: "Elderly",
-    help: "An extra weekly amount added to some pensions and payments if you live on your own.",
-    website: `${CI}/social-welfare/extra-social-welfare-benefits/living-alone-allowance/`,
-    counties: [],
-    who: ["Living alone", "Over 66", "Receive State Pension", "Widowed"],
-    keywords: ["alone", "pension", "extra payment"],
-  },
-  {
-    id: "seniors-alert",
-    name: "Seniors Alert Scheme",
-    category: "Elderly",
-    help: "A free personal alarm, so an older person living at home can call for help.",
-    website: "https://www.pobal.ie/programmes/seniors-alert-scheme-sas/",
-    counties: [],
-    who: ["Over 66", "Living alone"],
-    keywords: ["alarm", "pendant", "safety", "emergency", "alone"],
-  },
-  {
-    id: "medical-card",
-    name: "Medical Card",
-    category: "Health",
-    help: "Free GP visits and many other health services free or cheaper, if your income is under a set limit.",
-    website: `${CI}/health/medical-cards-and-gp-visit-cards/medical-card/`,
-    counties: [],
-    who: ["Low income", "On social welfare", "Long-term illness", "Over 66"],
-    keywords: ["doctor", "gp", "prescriptions", "hospital", "health"],
-  },
-  {
-    id: "carers-allowance",
-    name: "Carer's Allowance",
-    category: "Health",
-    help: "A weekly payment for people on a lower income who look after someone full time.",
-    website: `${CI}/social-welfare/carers/carers-allowance/`,
-    counties: [],
-    who: ["Carer for someone", "Child with additional needs"],
-    keywords: ["carer", "caring", "looking after"],
-  },
-  {
-    id: "carers-support-grant",
-    name: "Carer's Support Grant",
-    category: "Health",
-    help: "A once-a-year payment for full-time carers, to spend however they choose.",
-    website: `${CI}/social-welfare/carers/carers-support-grant/`,
-    counties: [],
-    who: ["Carer for someone", "Child with additional needs"],
-    keywords: ["carer", "respite", "annual payment"],
-  },
-  {
-    id: "back-to-school",
-    name: "Back to School Clothing and Footwear Allowance",
-    category: "Family",
-    help: "A once-a-year payment towards school uniforms and shoes for children in families on certain payments.",
-    website: `${CI}/social-welfare/families-and-children/back-to-school-clothing-and-footwear-allowance/`,
-    counties: [],
-    who: ["Have children", "On social welfare", "Low income", "Lone parent"],
-    keywords: ["school", "uniform", "shoes", "children", "kids"],
-  },
-  {
-    id: "working-family-payment",
-    name: "Working Family Payment",
-    category: "Family",
-    help: "A weekly top-up for working families with children who are on lower pay.",
-    website: `${CI}/social-welfare/families-and-children/working-family-payment/`,
-    counties: [],
-    who: ["Have children", "Low income", "Part-time work", "Lone parent"],
-    keywords: ["family", "children", "low pay", "work", "top up"],
-  },
-  {
-    id: "mabs",
-    name: "Money Advice and Budgeting Service (MABS)",
-    category: "Money",
-    help: "Free, confidential help to deal with debt and plan your budget.",
-    website: "https://www.mabs.ie/",
-    counties: [],
-    who: ["Behind on rent or bills", "Low income", "Unemployed"],
-    keywords: ["debt", "budget", "arrears", "money advice", "bills", "loans"],
-  },
-];
+// Council-specific schemes name their area ("Limerick City and County"); national
+// and nationally-run-but-locally-administered schemes apply everywhere.
+function countiesIn(scope, area) {
+  if (scope !== "Council-specific") return [];
+  return COUNTIES.filter((c) => new RegExp(`\\b${c}\\b`, "i").test(area || ""));
+}
+
+export function toGrant(s) {
+  return {
+    id: s.key,
+    name: s.name,
+    category: s.category,
+    scope: s.scope,
+    area: s.area,
+    counties: countiesIn(s.scope, s.area),
+    administrator: s.administrator,
+    audience: s.audience,
+    eligibility: s.eligibility,
+    benefitType: s.benefitType,
+    amountEur: s.amountEur,
+    amountBasis: s.amountBasis,
+    frequency: s.frequency,
+    meansTest: s.meansTest,
+    status: s.applicationStatus,
+    deadline: s.deadline,
+    effectivePeriod: s.effectivePeriod,
+    website: s.applyUrl || s.officialSource,
+    sourceUrl: s.officialSource,
+    lastChecked: s.lastChecked,
+    verification: s.verification,
+    who: tagsFor(s),
+  };
+}
+
+export const GRANTS = catalogue.schemes.map(toGrant);
+
+export const grantById = (id) => GRANTS.find((g) => g.id === id);

@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 /*
- * GrantGuide tokens. Teal primary for trust, warm sand for highlights.
+ * GrantGuide tokens. Green primary, warm sand for highlights.
  * Everything is sized in rem, and the root is 18px (not the browser's 16px),
  * so all text and spacing is a size up for easier reading.
  */
@@ -16,38 +16,38 @@
     --card-foreground: 210 24% 16%;
     --popover: 0 0% 100%;
     --popover-foreground: 210 24% 16%;
-    --primary: 175 77% 26%;             /* teal  #0F766E */
-    --primary-hover: 176 69% 22%;       /* teal  #115E59 */
+    --primary: 142 72% 29%;             /* green #15803D, 5:1 with white text */
+    --primary-hover: 143 64% 24%;       /* green #166534 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 168 30% 95%;           /* mint  #EFF6F4 */
-    --secondary-foreground: 175 77% 20%;
-    --muted: 168 20% 96%;
+    --secondary: 138 76% 97%;           /* mint  #F0FDF4 */
+    --secondary-foreground: 143 64% 24%;
+    --muted: 140 20% 96%;
     --muted-foreground: 210 13% 37%;    /* #52606D, 6.5:1 on white */
     --accent: 39 89% 92%;               /* sand  #FCEFD5 */
     --accent-foreground: 30 80% 25%;
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 165 14% 88%;              /* #DDE5E3 */
-    --input: 165 10% 75%;
-    --ring: 175 77% 26%;
-    --chart-1: 175 77% 26%;
+    --border: 140 16% 88%;              /* #DCE6DF */
+    --input: 140 10% 75%;
+    --ring: 142 72% 29%;
+    --chart-1: 142 72% 29%;
     --chart-2: 39 89% 55%;
     --chart-3: 210 24% 16%;
-    --chart-4: 168 30% 70%;
+    --chart-4: 140 30% 70%;
     --chart-5: 0 72% 45%;
     --radius: 0.75rem;
     --font-heading: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
     --font-body: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --sidebar-background: 168 20% 96%;
+    --sidebar-background: 140 20% 96%;
     --sidebar-foreground: 210 24% 16%;
-    --sidebar-primary: 175 77% 26%;
+    --sidebar-primary: 142 72% 29%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 168 30% 95%;
-    --sidebar-accent-foreground: 175 77% 20%;
-    --sidebar-border: 165 14% 88%;
-    --sidebar-ring: 175 77% 26%;
+    --sidebar-accent: 138 76% 97%;
+    --sidebar-accent-foreground: 143 64% 24%;
+    --sidebar-border: 140 16% 88%;
+    --sidebar-ring: 142 72% 29%;
   }
 }
 

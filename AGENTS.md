@@ -8,8 +8,8 @@ Many users are older or not confident online, so the UI favours large text (18px
 
 ## Key files
 
-- `src/index.css`: design tokens (teal primary, Atkinson Hyperlegible font, 18px root size). Use the token classes (`bg-primary`, `text-muted-foreground`, `border-border`...) rather than hex colours.
-- `src/data/grants.js`: sample grant data. Don't add amounts or eligibility rules without an official source.
+- `src/index.css`: design tokens (green primary, Atkinson Hyperlegible font, 18px root size). Use the token classes (`bg-primary`, `text-muted-foreground`, `border-border`...) rather than hex colours.
+- `src/data/catalogue/`: scheme and source snapshots exported from Notion (the master copy). Don't hand-edit amounts or rules; fix them in Notion and re-export. `src/data/grants.js` maps them for the UI.
 - `src/lib/searchGrants.js`: local search and matching.
 - `src/hooks/useSaved.js`, `src/lib/localStore.js`: browser-only storage until accounts exist.
 

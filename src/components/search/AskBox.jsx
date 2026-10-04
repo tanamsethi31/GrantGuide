@@ -54,7 +54,7 @@ export default function AskBox({ query, setQuery, onSearch, placeholder = "Tell 
   return (
     <form
       onSubmit={submit}
-      className="w-full rounded-[1.75rem] border border-input bg-white shadow-[0_10px_30px_-12px_rgba(15,118,110,0.35)] focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/15 transition"
+      className="w-full rounded-[1.75rem] border border-input bg-white shadow-[0_10px_30px_-12px_rgba(21,128,61,0.35)] focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/15 transition"
     >
       <label htmlFor="ask" className="sr-only">What do you need help with?</label>
       <textarea

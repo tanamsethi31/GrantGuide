@@ -19,7 +19,7 @@ GrantGuide never promises eligibility, invents answers, signs declarations, or s
 
 The app is a frontend only. Base44 has been removed entirely (SDK client, Vite plugin, entities, functions, and the login pages), and no replacement backend has been chosen yet.
 
-- Scheme data is a small sample in `src/data/grants.js`: names, one-line summaries, and checked official links, with no amounts or eligibility rules.
+- Scheme data is a snapshot of the team's Notion catalogue in `src/data/catalogue/`: 64 schemes with amounts, eligibility summaries, status, official links, last-checked dates and verification status, plus an 85-entry official source register. Notion is the master copy until the backend exists; the snapshot maps naturally onto SupportScheme and SourceSnapshot below, but eligibility is still a text summary, not versioned SchemeRequirement rules.
 - Search and profile matching run in the browser (`src/lib/searchGrants.js`) by keyword and "about you" tags. This is a placeholder for the deterministic, server-side matcher described below, not a version of it.
 - Saved schemes and profile answers are kept in the browser's local storage. There are no accounts.
 
@@ -89,7 +89,7 @@ A scheme-level result is a summary of those states, not a legal or financial det
 Build in this order:
 
 1. Choose the backend, then model SupportScheme, SchemeRequirement, SourceSnapshot, UserProfile, and SupportMatch.
-2. Seed a small, manually verified set of Irish housing schemes and source URLs (replacing `src/data/grants.js`).
+2. Seed the schemes and sources from the catalogue snapshot (`src/data/catalogue/`), breaking each eligibility summary into versioned requirements.
 3. Implement `findSupports` and `matchSupports` with deterministic requirement evaluation.
 4. Connect the existing Search page to the functions and render status explanations/citations, replacing the in-browser placeholder search.
 5. Add ApplicationCase and build the personalised readiness checklist.

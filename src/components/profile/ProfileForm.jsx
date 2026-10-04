@@ -7,7 +7,7 @@ import { EXTRA_GROUPS } from "@/components/profile/extraGroups";
 export default function ProfileForm({ county, setCounty, who, setWho, onSave, justSaved }) {
   const toggle = (o) => setWho(who.includes(o) ? who.filter((w) => w !== o) : [...who, o]);
   return (
-    <div className="rounded-3xl border border-border shadow-[0_10px_30px_-12px_rgba(15,118,110,0.25)] p-6 sm:p-8 bg-card">
+    <div className="rounded-3xl border border-border shadow-[0_10px_30px_-12px_rgba(21,128,61,0.25)] p-6 sm:p-8 bg-card">
       <h2 className="text-2xl font-bold mb-5">About you</h2>
       <label htmlFor="county" className="block font-bold mb-2">Your county</label>
       <select
