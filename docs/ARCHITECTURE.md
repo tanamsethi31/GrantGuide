@@ -1,8 +1,8 @@
-# GrantPath architecture
+# GrantGuide architecture
 
 ## Purpose
 
-GrantPath helps people in Ireland discover housing grants and support schemes, understand what is known and unknown about their situation, and prepare applications without losing control of their data.
+GrantGuide helps people in Ireland discover housing grants and support schemes, understand what is known and unknown about their situation, and prepare applications without losing control of their data.
 
 The system must distinguish:
 
@@ -13,17 +13,27 @@ The system must distinguish:
 - **prepared**: an application pack or form draft exists;
 - **submitted**: a verified acknowledgement exists from the authority or applicant.
 
-GrantPath never promises eligibility, invents answers, signs declarations, or silently submits an application.
+GrantGuide never promises eligibility, invents answers, signs declarations, or silently submits an application.
+
+## Current state (October 2026)
+
+The app is a frontend only. Base44 has been removed entirely (SDK client, Vite plugin, entities, functions, and the login pages), and no replacement backend has been chosen yet.
+
+- Scheme data is a small sample in `src/data/grants.js`: names, one-line summaries, and checked official links, with no amounts or eligibility rules.
+- Search and profile matching run in the browser (`src/lib/searchGrants.js`) by keyword and "about you" tags. This is a placeholder for the deterministic, server-side matcher described below, not a version of it.
+- Saved schemes and profile answers are kept in the browser's local storage. There are no accounts.
+
+Everything below describes the target design. Where it names a backend, it means whichever backend the team chooses.
 
 ## System boundaries
 
 ### Frontend
 
-The existing Vite/React app owns navigation, questionnaire and conversation UI, document upload UI, checklist presentation, field review, and explicit approval controls. It calls Base44 functions through the existing SDK client.
+The Vite/React app owns navigation, questionnaire and conversation UI, document upload UI, checklist presentation, field review, and explicit approval controls. It calls the backend through a single API client module (to be added under `src/api/`), never directly from components.
 
-### Base44 backend
+### Backend (not yet chosen)
 
-Base44 entities provide persistence and row-level access control. Base44 functions provide server-side orchestration and the only place where source retrieval, matching, extraction, and application preparation should run.
+The backend provides persistence with per-user access control, and server-side functions that are the only place where source retrieval, matching, extraction, and application preparation run.
 
 ### External systems
 
@@ -44,7 +54,7 @@ Base44 entities provide persistence and row-level access control. Base44 functio
 9. **SubmissionRecord** — prepared/submitted status, channel, acknowledgement reference, timestamps, and immutable event history.
 10. **ConsentAuditEvent** — append-only record of document access, fact reuse, field approval, browser actions, and deletion requests.
 
-All user-owned records use Base44 row-level security tied to the authenticated user. Shared scheme/source records are read-only to end users.
+All user-owned records use row-level access control tied to the authenticated user. Shared scheme/source records are read-only to end users.
 
 ## Function boundaries
 
@@ -78,10 +88,10 @@ A scheme-level result is a summary of those states, not a legal or financial det
 
 Build in this order:
 
-1. Model SupportScheme, SchemeRequirement, SourceSnapshot, UserProfile, and SupportMatch.
-2. Seed a small, manually verified set of Irish housing schemes and source URLs.
+1. Choose the backend, then model SupportScheme, SchemeRequirement, SourceSnapshot, UserProfile, and SupportMatch.
+2. Seed a small, manually verified set of Irish housing schemes and source URLs (replacing `src/data/grants.js`).
 3. Implement `findSupports` and `matchSupports` with deterministic requirement evaluation.
-4. Connect the existing Search page to the functions and render status explanations/citations.
+4. Connect the existing Search page to the functions and render status explanations/citations, replacing the in-browser placeholder search.
 5. Add ApplicationCase and build the personalised readiness checklist.
 6. Add EvidenceDocument and extraction review; only then add supported form preparation.
 7. Treat browser automation and submission as a later adapter behind explicit approval and audit events.
@@ -98,4 +108,4 @@ Build in this order:
 
 ## Collaboration contract
 
-Frontend code should depend on function contracts rather than entity internals. Backend changes should preserve the existing `src/api/base44Client.js` and Base44 CLI workflow. New integrations belong under server-side adapters and must be configured through environment variables, never committed secrets.
+Frontend code should depend on function contracts rather than storage internals, through the single API client module. New integrations belong under server-side adapters and must be configured through environment variables, never committed secrets.
