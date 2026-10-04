@@ -1,21 +1,21 @@
 import React from "react";
-import PageShell from "@/components/layout/PageShell";
+import AirbnbHeader from "@/components/layout/AirbnbHeader";
 import ResultsGrid from "@/components/supports/ResultsGrid";
 import useSaved from "@/hooks/useSaved";
 
 export default function Saved() {
   const saved = useSaved();
   return (
-    <PageShell>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 pb-20">
-        <h1 className="text-3xl sm:text-4xl font-bold">Saved grants</h1>
-        <p className="text-lg text-muted-foreground mt-2 mb-8">Saved on this device. Tap the heart again to remove one.</p>
+    <div className="min-h-screen bg-white font-body text-[#222222]">
+      <AirbnbHeader />
+      <main className="max-w-7xl mx-auto px-5 sm:px-10 py-10 pb-20">
+        <h1 className="text-3xl font-bold mb-8">Saved supports</h1>
         <ResultsGrid
           supports={saved.items}
           saved={saved}
-          emptyText="Nothing saved yet. Tap the heart on any grant to keep it here."
+          emptyText="Nothing saved yet. Tap the heart on any support to keep it here."
         />
-      </div>
-    </PageShell>
+      </main>
+    </div>
   );
 }

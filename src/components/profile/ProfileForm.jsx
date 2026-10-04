@@ -1,47 +1,45 @@
 import React from "react";
-import { Check } from "lucide-react";
 import { COUNTIES } from "@/lib/counties";
-import { WHO_OPTIONS, TagButton } from "@/components/search/WhoPicker";
+import { WHO_OPTIONS, chipClass } from "@/components/search/WhoPicker";
 import { EXTRA_GROUPS } from "@/components/profile/extraGroups";
 
 export default function ProfileForm({ county, setCounty, who, setWho, onSave, justSaved }) {
   const toggle = (o) => setWho(who.includes(o) ? who.filter((w) => w !== o) : [...who, o]);
   return (
-    <div className="rounded-3xl border border-border shadow-[0_10px_30px_-12px_rgba(21,128,61,0.25)] p-6 sm:p-8 bg-card">
-      <h2 className="text-2xl font-bold mb-5">About you</h2>
-      <label htmlFor="county" className="block font-bold mb-2">Your county</label>
+    <div className="rounded-3xl border border-[#dddddd] shadow-[0_6px_16px_rgba(0,0,0,0.08)] p-6 sm:p-8 bg-white">
+      <h2 className="text-xl font-semibold mb-5">About you</h2>
+      <label htmlFor="county" className="block text-sm font-semibold mb-2">Your county</label>
       <select
         id="county"
         value={county}
         onChange={(e) => setCounty(e.target.value)}
-        className="w-full rounded-xl border border-input px-4 py-3 text-lg bg-white outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
+        className="w-full rounded-xl border border-[#b0b0b0] px-4 py-3 text-base bg-white outline-none focus:border-[#222222]"
       >
         <option value="">Select a county</option>
         {COUNTIES.map((c) => <option key={c} value={c}>{`Co. ${c}`}</option>)}
       </select>
-      <p className="font-bold mt-8 mb-3">Which of these describe you?</p>
+      <p className="text-sm font-semibold mt-6 mb-3">Which of these describe you?</p>
       <div className="flex flex-wrap gap-2">
         {WHO_OPTIONS.map((o) => (
-          <TagButton key={o} selected={who.includes(o)} onClick={() => toggle(o)}>{o}</TagButton>
+          <button key={o} type="button" onClick={() => toggle(o)} aria-pressed={who.includes(o)} className={chipClass(who.includes(o))}>{o}</button>
         ))}
       </div>
-      <p className="font-bold mt-8">Tell us more</p>
-      <p className="text-muted-foreground mb-4">The more you add, the better your matches.</p>
+      <p className="text-sm font-semibold mt-6 mb-1">Tell us more</p>
+      <p className="text-sm text-[#717171] mb-4">The more you add, the better your matches.</p>
       {EXTRA_GROUPS.map((g) => (
-        <div key={g.title} className="mb-6">
-          <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">{g.title}</p>
+        <div key={g.title} className="mb-5">
+          <p className="text-sm font-semibold uppercase tracking-wide text-[#717171] mb-2">{g.title}</p>
           <div className="flex flex-wrap gap-2">
             {g.options.map((o) => (
-              <TagButton key={o} selected={who.includes(o)} onClick={() => toggle(o)}>{o}</TagButton>
+              <button key={o} type="button" onClick={() => toggle(o)} aria-pressed={who.includes(o)} className={chipClass(who.includes(o))}>{o}</button>
             ))}
           </div>
         </div>
       ))}
       <button
         onClick={onSave}
-        className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-lg font-bold px-6 py-4 transition"
+        className="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#15803D] hover:bg-[#166534] text-white font-semibold px-6 py-3.5 transition"
       >
-        {justSaved && <Check className="w-5 h-5" aria-hidden="true" />}
         {justSaved ? "Saved on this device" : "Save my details"}
       </button>
     </div>

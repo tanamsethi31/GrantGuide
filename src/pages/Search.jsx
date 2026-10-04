@@ -1,20 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import PageShell from "@/components/layout/PageShell";
-import AskBox from "@/components/search/AskBox";
-import FilterBar from "@/components/search/FilterBar";
+import AirbnbHeader from "@/components/layout/AirbnbHeader";
+import ChatSearch from "@/components/search/ChatSearch";
 import ResultsGrid from "@/components/supports/ResultsGrid";
 import useSaved from "@/hooks/useSaved";
 import { searchGrants } from "@/lib/searchGrants";
 import { readSearchParams, toSearchParams } from "@/lib/searchParams";
-import { categoryLabel } from "@/lib/categories";
-
-function heading(count, { query, category, location }) {
-  const what = category === "Any" ? "grants" : `${categoryLabel(category).toLowerCase()} grants`;
-  const where = location ? ` in Co. ${location}` : " across Ireland";
-  const about = query ? ` for “${query}”` : "";
-  return `${count} ${count === 1 ? what.replace(/s$/, "") : what}${about}${where}`;
-}
 
 export default function Search() {
   const [params, setParams] = useSearchParams();
@@ -26,24 +17,27 @@ export default function Search() {
   useEffect(() => setDraft(state.query), [state.query]);
 
   const update = (patch) => setParams(toSearchParams({ ...state, ...patch }));
-  const results = useMemo(() => searchGrants(state), [params]);
+  const supports = useMemo(() => searchGrants(state), [params]);
 
   return (
-    <PageShell>
-      <section className="bg-secondary">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8">
-          <AskBox query={draft} setQuery={setDraft} onSearch={(o = {}) => update({ query: (o.q ?? draft).trim() })} />
-          <FilterBar
-            category={state.category} setCategory={(category) => update({ category })}
-            location={state.location} setLocation={(location) => update({ location })}
-            who={state.who} setWho={(who) => update({ who })}
-          />
-        </div>
-      </section>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 pb-20">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-8" aria-live="polite">{heading(results.length, state)}</h1>
-        <ResultsGrid supports={results} saved={saved} />
-      </div>
-    </PageShell>
+    <div className="min-h-screen bg-white font-body text-[#222222]">
+      <AirbnbHeader>
+        <ChatSearch
+          query={draft} setQuery={setDraft}
+          onSearch={(o = {}) => update({ query: (o.q ?? draft).trim() })}
+          category={state.category} setCategory={(category) => update({ category })}
+          location={state.location} setLocation={(location) => update({ location })}
+          who={state.who} setWho={(who) => update({ who })}
+        />
+      </AirbnbHeader>
+      <main className="max-w-7xl mx-auto px-5 sm:px-10 py-8 pb-20">
+        {supports.length > 0 && (
+          <h1 className="text-xl font-semibold mb-6" aria-live="polite">
+            {supports.length} supports{state.location ? ` in Co. ${state.location}` : " across Ireland"}
+          </h1>
+        )}
+        <ResultsGrid supports={supports} saved={saved} />
+      </main>
+    </div>
   );
 }

@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageShell from "@/components/layout/PageShell";
-import AskBox from "@/components/search/AskBox";
-import FilterBar from "@/components/search/FilterBar";
+import AirbnbHeader from "@/components/layout/AirbnbHeader";
+import ChatSearch from "@/components/search/ChatSearch";
 import ExploreTiles from "@/components/home/ExploreTiles";
 import CardRow from "@/components/home/CardRow";
 import CountyLinks from "@/components/home/CountyLinks";
@@ -12,6 +11,12 @@ import { toSearchParams } from "@/lib/searchParams";
 import { categoryLabel } from "@/lib/categories";
 import { isClosed } from "@/lib/grantDisplay";
 
+// With no topic picked, the home page shows these two rows.
+const DEFAULT_ROWS = [
+  { title: "Help with money and family", category: "Income and family" },
+  { title: "Help with energy bills", category: "Energy and environment" },
+];
+
 export default function Home() {
   const navigate = useNavigate();
   const saved = useSaved();
@@ -20,41 +25,32 @@ export default function Home() {
   const [location, setLocation] = useState("");
   const [who, setWho] = useState([]);
 
-  const filters = { category, location, who };
-  const search = (o = {}) => navigate(`/search?${toSearchParams({ ...filters, query: o.q ?? query })}`);
-  const featured = useMemo(() => searchGrants(filters).filter((g) => !isClosed(g)).slice(0, 12), [category, location, who]);
+  const search = (o = {}) => navigate(`/search?${toSearchParams({ query: o.q ?? query, category, location, who })}`);
+
+  const rows = useMemo(() => {
+    const defs = category === "Any" ? DEFAULT_ROWS : [{ title: categoryLabel(category), category }];
+    return defs.map((r) => ({
+      ...r,
+      href: `/search?${toSearchParams({ category: r.category, location, who })}`,
+      supports: searchGrants({ category: r.category, location, who }).filter((g) => !isClosed(g)).slice(0, 12),
+    }));
+  }, [category, location, who]);
 
   return (
-    <PageShell>
-      <section className="bg-gradient-to-b from-secondary to-background">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-12 sm:pt-16 pb-10 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">Find the grants you're owed</h1>
-          <p className="mt-4 text-xl text-muted-foreground">
-            Ask in your own words, or just speak. We'll show the Irish grants and supports that fit you.
-          </p>
-          <div className="mt-8 text-left">
-            <AskBox
-              query={query}
-              setQuery={setQuery}
-              onSearch={search}
-              placeholder="For example: I'm 70, live alone and my heating bills are too high"
-            />
-          </div>
-          <FilterBar
-            category={category} setCategory={setCategory}
-            location={location} setLocation={setLocation}
-            who={who} setWho={setWho}
-          />
-        </div>
-      </section>
-      <CardRow
-        title={category === "Any" ? "Schemes to explore" : categoryLabel(category)}
-        href={`/search?${toSearchParams(filters)}`}
-        supports={featured}
-        saved={saved}
-      />
+    <div className="min-h-screen bg-white font-body text-[#222222]">
+      <AirbnbHeader>
+        <ChatSearch
+          query={query} setQuery={setQuery} onSearch={search}
+          category={category} setCategory={setCategory}
+          location={location} setLocation={setLocation}
+          who={who} setWho={setWho}
+        />
+      </AirbnbHeader>
       <ExploreTiles />
+      {rows.map((r) => (
+        <CardRow key={r.title} title={r.title} href={r.href} supports={r.supports} saved={saved} />
+      ))}
       <CountyLinks />
-    </PageShell>
+    </div>
   );
 }

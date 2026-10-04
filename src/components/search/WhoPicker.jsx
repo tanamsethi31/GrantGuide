@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const WHO_OPTIONS = [
@@ -7,20 +7,10 @@ export const WHO_OPTIONS = [
   "On social welfare", "Living alone", "Have children", "Low income",
 ];
 
-export function TagButton({ selected, onClick, children }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={`rounded-full px-4 py-2 border transition ${
-        selected ? "bg-primary text-primary-foreground border-primary" : "bg-white text-foreground border-input hover:border-primary"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
+export const chipClass = (selected) =>
+  `rounded-full px-4 py-2 text-sm border transition ${
+    selected ? "bg-[#222222] text-white border-[#222222]" : "bg-white text-[#222222] border-[#dddddd] hover:border-[#222222]"
+  }`;
 
 export default function WhoPicker({ who, setWho, className }) {
   const toggle = (o) => setWho(who.includes(o) ? who.filter((w) => w !== o) : [...who, o]);
@@ -28,19 +18,19 @@ export default function WhoPicker({ who, setWho, className }) {
     <Popover>
       <PopoverTrigger asChild>
         <button type="button" className={className}>
-          <UserRound className="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-          <span className="truncate max-w-[14rem]">
-            <span className="font-bold">About you:</span>{" "}
+          <UserRound className="w-4 h-4 text-[#717171]" aria-hidden="true" />
+          <span className="font-semibold">Who</span>
+          <span className="text-[#717171] truncate max-w-[12rem]">
             {who.length ? who.join(", ") : "Add details"}
           </span>
-          <ChevronDown className="w-4 h-4 shrink-0" aria-hidden="true" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="center" className="w-[22rem] max-w-[calc(100vw-2rem)] rounded-3xl p-5">
-        <p className="font-bold mb-3">Which of these describe you?</p>
+      <PopoverContent align="center" className="w-80 max-w-[calc(100vw-2rem)] rounded-3xl p-4 border-[#dddddd]">
         <div className="flex flex-wrap gap-2">
           {WHO_OPTIONS.map((o) => (
-            <TagButton key={o} selected={who.includes(o)} onClick={() => toggle(o)}>{o}</TagButton>
+            <button key={o} type="button" onClick={() => toggle(o)} aria-pressed={who.includes(o)} className={chipClass(who.includes(o))}>
+              {o}
+            </button>
           ))}
         </div>
       </PopoverContent>
