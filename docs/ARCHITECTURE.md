@@ -22,6 +22,7 @@ The app is a frontend only. Base44 has been removed entirely (SDK client, Vite p
 - Scheme data is a snapshot of the team's Notion catalogue in `src/data/catalogue/`: 64 schemes with amounts, eligibility summaries, status, official links, last-checked dates and verification status, plus an 85-entry official source register. Notion is the master copy until the backend exists; the snapshot maps naturally onto SupportScheme and SourceSnapshot below, but eligibility is still a text summary, not versioned SchemeRequirement rules.
 - Search and profile matching run in the browser (`src/lib/searchGrants.js`) by keyword and "about you" tags. This is a placeholder for the deterministic, server-side matcher described below, not a version of it.
 - Saved schemes and profile answers are kept in the browser's local storage. There are no accounts.
+- Applying is one flow at `/apply/:schemeId`, reached from every scheme's "Get ready to apply" card: either a spoken conversation (`components/apply/VoiceInterview.jsx`, questions in `lib/applyQuestions.js`) or a form with a "Use voice" button on each text field. Home-repair schemes get extra questions (ownership, works, income, documents). It uses the browser's speech services (in Chrome, audio goes to Google for transcription), stores nothing, and ends with the person checking and confirming; it prepares, never submits.
 
 Everything below describes the target design. Where it names a backend, it means whichever backend the team chooses.
 

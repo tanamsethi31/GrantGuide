@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowUp, Mic, Volume2, VolumeX } from "lucide-react";
 import Waveform from "@/components/voice/Waveform";
-import { QUESTIONS, applyAnswer, nextQuestion, yesNo } from "@/lib/applyQuestions";
+import { applyAnswer, nextQuestion, yesNo } from "@/lib/applyQuestions";
 import { canListen, canSpeak, listenOnce, speak, stopSpeaking } from "@/lib/speech";
 
 /**
@@ -10,9 +10,9 @@ import { canListen, canSpeak, listenOnce, speak, stopSpeaking } from "@/lib/spee
  * that arrive for an old turn are ignored so speech, typing and taps can't
  * double-answer.
  */
-export default function VoiceInterview({ form, setForm, onDone, onSkip }) {
+export default function VoiceInterview({ questions, form, setForm, onDone, onSkip }) {
   const [messages, setMessages] = useState([]);
-  const [step, setStep] = useState(() => nextQuestion(form, 0));
+  const [step, setStep] = useState(() => nextQuestion(questions, form, 0));
   const [status, setStatus] = useState("idle"); // idle | speaking | listening
   const [interim, setInterim] = useState("");
   const [voiceOn, setVoiceOn] = useState(canSpeak());
@@ -98,7 +98,7 @@ export default function VoiceInterview({ form, setForm, onDone, onSkip }) {
   }
 
   function askStep(i) {
-    const q = QUESTIONS[i];
+    const q = questions[i];
     const confirming = Boolean(q.confirm && formRef.current[q.key]);
     modeRef.current = confirming ? "confirm" : "ask";
     ask(confirming ? q.confirm(formRef.current) : q.ask(formRef.current), confirming ? ["Yes", "No"] : q.options);
@@ -112,7 +112,7 @@ export default function VoiceInterview({ form, setForm, onDone, onSkip }) {
   }
 
   function advance() {
-    const i = nextQuestion(formRef.current, stepRef.current + 1);
+    const i = nextQuestion(questions, formRef.current, stepRef.current + 1);
     if (i === -1) finish();
     else {
       stepRef.current = i;
@@ -121,7 +121,7 @@ export default function VoiceInterview({ form, setForm, onDone, onSkip }) {
   }
 
   function respond(text) {
-    const q = QUESTIONS[stepRef.current];
+    const q = questions[stepRef.current];
     if (modeRef.current === "confirm") {
       const y = yesNo(text);
       if (y === true) return advance();
@@ -172,7 +172,7 @@ export default function VoiceInterview({ form, setForm, onDone, onSkip }) {
     setVoiceOn(!voiceOn);
   };
 
-  const total = QUESTIONS.length;
+  const total = questions.length;
   const current = step === -1 ? total : Math.min(step + 1, total);
 
   return (

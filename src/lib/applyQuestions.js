@@ -59,6 +59,13 @@ export function cleanName(text) {
 const cleanAddress = (text) =>
   String(text).trim().replace(/^(i live (at|in)|my address is|it's|it is)\s+/i, "").replace(/[.]+$/, "");
 
+/** Spoken email: "mary dot kelly at gmail dot com" -> "mary.kelly@gmail.com". */
+export function parseEmail(text) {
+  const t = String(text).trim().toLowerCase()
+    .replace(/\s+at\s+/g, "@").replace(/\s+dot\s+/g, ".").replace(/\s+/g, "");
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t) ? t : "";
+}
+
 const sentence = (text) => {
   const t = String(text).trim();
   return t ? t[0].toUpperCase() + t.slice(1) + (/[.!?]$/.test(t) ? "" : ".") : "";
@@ -82,8 +89,8 @@ const yesNoParse = (retry) => (t) => {
   return y === null ? { retry } : { value: y };
 };
 
-export const QUESTIONS = [
-  {
+const q = {
+  name: {
     key: "name",
     ask: () => "Let's start with you. What's your full name?",
     parse: (t) => {
@@ -91,7 +98,7 @@ export const QUESTIONS = [
       return v ? { value: v } : { retry: "Sorry, I didn't catch your name. Could you say it again?" };
     },
   },
-  {
+  age: {
     key: "age",
     confirm: (f) => `You told us you're ${f.age}. Is that right?`,
     ask: () => "How old are you?",
@@ -100,7 +107,17 @@ export const QUESTIONS = [
       return n && n > 15 && n < 120 ? { value: String(n) } : { retry: "Sorry, how old are you? Just the number is fine." };
     },
   },
-  {
+  email: {
+    key: "email",
+    ask: () => "What's your email address? You can say skip if you don't have one.",
+    options: ["Skip"],
+    parse: (t) => {
+      if (/skip|don't have|dont have|no email|rather not/i.test(t)) return { value: "" };
+      const v = parseEmail(t);
+      return v ? { value: v } : { retry: "Sorry, I didn't get that email. Try saying it like: mary dot kelly at gmail dot com. Or say skip." };
+    },
+  },
+  phone: {
     key: "phone",
     ask: () => "What's the best phone number for you? You can say skip if you'd rather not.",
     options: ["Skip"],
@@ -112,7 +129,7 @@ export const QUESTIONS = [
         : { retry: "Sorry, I didn't get that number. Could you say it again, or say skip?" };
     },
   },
-  {
+  address: {
     key: "address",
     ask: () => "What's your home address?",
     parse: (t) => {
@@ -122,7 +139,7 @@ export const QUESTIONS = [
       return { value: v, extra: county ? { county } : undefined };
     },
   },
-  {
+  county: {
     key: "county",
     skip: (f) => Boolean(f.county),
     ask: () => "Which county is that in?",
@@ -131,7 +148,13 @@ export const QUESTIONS = [
       return c ? { value: c } : { retry: "Sorry, which county? For example, Cork or Galway." };
     },
   },
-  {
+  helpWith: {
+    key: "helpWith",
+    confirm: (f) => `You said: "${f.helpWith}" Is that what you'd like help with?`,
+    ask: () => "In your own words, what would you like help with?",
+    parse: (t) => (String(t).trim().length > 2 ? { value: sentence(t) } : { retry: "Sorry, could you tell me again what you'd like help with?" }),
+  },
+  owner: {
     key: "owner",
     ask: () => "Do you own your home?",
     options: ["Yes", "No"],
@@ -140,37 +163,53 @@ export const QUESTIONS = [
       return y === null ? { retry: "Sorry, do you own your home? Yes or no is fine." } : { value: y ? "Yes" : "No" };
     },
   },
-  {
+  need: {
     key: "need",
     confirm: (f) => `You said: "${f.need}" Is that what needs fixing?`,
     ask: () => "What needs fixing in your home?",
     parse: (t) => (String(t).trim().length > 2 ? { value: sentence(t) } : { retry: "Sorry, could you tell me again what needs fixing?" }),
   },
-  {
+  income: {
     key: "income",
     ask: () => "Roughly what's your total household income before tax, per year? Under 75 thousand euro, over 75 thousand, or not sure?",
     options: INCOME_OPTIONS,
     parse: parseIncome,
   },
-  {
-    key: `doc:${DOCUMENTS[0]}`,
-    ask: () => "Nearly done. Do you have proof of your household income?",
-    options: ["Yes", "No"],
-    parse: yesNoParse("Sorry, do you have proof of your income? Yes or no?"),
-  },
-  {
-    key: `doc:${DOCUMENTS[1]}`,
-    ask: () => "Do you have proof that you own or live in the home?",
-    options: ["Yes", "No"],
-    parse: yesNoParse("Sorry, do you have proof you own or live in the home? Yes or no?"),
-  },
-  {
-    key: `doc:${DOCUMENTS[2]}`,
-    ask: () => "And do you have a quote for the work that's needed?",
-    options: ["Yes", "No"],
-    parse: yesNoParse("Sorry, do you have a quote for the work? Yes or no?"),
-  },
-];
+  docs: [
+    {
+      key: `doc:${DOCUMENTS[0]}`,
+      ask: () => "Nearly done. Do you have proof of your household income?",
+      options: ["Yes", "No"],
+      parse: yesNoParse("Sorry, do you have proof of your income? Yes or no?"),
+    },
+    {
+      key: `doc:${DOCUMENTS[1]}`,
+      ask: () => "Do you have proof that you own or live in the home?",
+      options: ["Yes", "No"],
+      parse: yesNoParse("Sorry, do you have proof you own or live in the home? Yes or no?"),
+    },
+    {
+      key: `doc:${DOCUMENTS[2]}`,
+      ask: () => "And do you have a quote for the work that's needed?",
+      options: ["Yes", "No"],
+      parse: yesNoParse("Sorry, do you have a quote for the work? Yes or no?"),
+    },
+  ],
+};
+
+// Schemes that pay for work on the home get the home-repair questions;
+// every other scheme gets the general "what would you like help with?".
+export const HOME_WORKS = new Set(["IE-HOUSING-OLDER-PEOPLE", "IE-HOUSING-ADAPTATION", "IE-HOUSING-MOBILITY-AIDS"]);
+
+export const isHomeWorks = (grantId) => HOME_WORKS.has(grantId);
+
+/** The questions to ask for a scheme, in order. */
+export function questionsFor(grantId) {
+  const common = [q.name, q.age, q.email, q.phone, q.address, q.county];
+  return isHomeWorks(grantId)
+    ? [...common, q.owner, q.need, q.income, ...q.docs]
+    : [...common, q.helpWith];
+}
 
 /** Applies a parsed answer for `key` to the form. Document answers tick or untick. */
 export function applyAnswer(form, key, value, extra) {
@@ -183,9 +222,9 @@ export function applyAnswer(form, key, value, extra) {
 }
 
 /** Index of the next question to ask at or after `from`, or -1 when finished. */
-export function nextQuestion(form, from) {
-  for (let i = from; i < QUESTIONS.length; i++) {
-    if (!QUESTIONS[i].skip?.(form)) return i;
+export function nextQuestion(questions, form, from) {
+  for (let i = from; i < questions.length; i++) {
+    if (!questions[i].skip?.(form)) return i;
   }
   return -1;
 }
