@@ -1,8 +1,8 @@
-# GrantPath build plan
+# GrantGuide build plan
 
 ## Product goal
 
-Help people in Ireland find housing support they may qualify for, understand what is known or unresolved, and prepare a complete application with less repeated paperwork. GrantPath provides guidance and preparation; the relevant local authority or scheme administrator decides eligibility and approval.
+Help people in Ireland find housing support they may qualify for, understand what is known or unresolved, and prepare a complete application with less repeated paperwork. GrantGuide provides guidance and preparation; the relevant local authority or scheme administrator decides eligibility and approval.
 
 The product should work in stages. A person can explore without uploading documents, save a profile if they choose, prepare a case with evidence, and review every proposed application answer before they act.
 
@@ -36,7 +36,7 @@ The product should work in stages. A person can explore without uploading docume
 
 ### Defer until the first release is reliable
 
-- Voice conversation.
+- Spoken back-and-forth voice conversation. (Voice input, where the browser turns speech into text in the question box, already ships.)
 - Broad automated crawling of scheme websites.
 - Automated browser interaction or submission through Steel.
 - Automatic declarations, signatures, or unattended application submission.
@@ -48,8 +48,8 @@ The product should work in stages. A person can explore without uploading docume
 
 ```mermaid
 flowchart LR
-  UI[React and Vite frontend] --> SDK[Existing Base44 SDK client]
-  SDK --> FN[Base44 server functions]
+  UI[React and Vite frontend] --> SDK[API client module]
+  SDK --> FN[Backend server functions]
   FN --> MATCH[Deterministic requirement evaluator]
   FN --> CATALOG[Versioned scheme and source catalogue]
   FN --> DOCS[Private evidence storage and extraction adapter]
@@ -62,7 +62,7 @@ flowchart LR
   BROWSER --> ACK[Verified acknowledgement and audit event]
 ```
 
-The existing `src/api/base44Client.js` remains the frontend entry point. Scheme matching and document processing run in Base44 functions, not in browser components. Provider-specific AI, OCR, storage, and browser code sit behind server-side adapters so they can be changed without rewriting the product flow.
+A single API client module (to be added under `src/api/`) is the frontend entry point. Scheme matching and document processing run in backend functions, not in browser components; the current in-browser sample search (`src/lib/searchGrants.js`) is a placeholder until then. Provider-specific AI, OCR, storage, and browser code sit behind server-side adapters so they can be changed without rewriting the product flow.
 
 ## Core records
 
@@ -101,7 +101,7 @@ Use shared input/output validation and stable error codes. Never expose provider
 
 ### Phase 0 — Foundation and decisions
 
-- Keep the generated Base44 app and its current auth conventions.
+- Choose the backend (Base44 has been removed; the app is currently frontend-only) and its auth approach.
 - Establish an agreed data vocabulary and function response shapes.
 - Decide how guest exploration, account persistence, and helper access work.
 - Select a narrow first set of housing schemes and authorities from official sources.
@@ -163,21 +163,21 @@ Use shared input/output validation and stable error codes. Never expose provider
 
 ### Initial development
 
-Follow this repository's Base44 workflow: use `base44 dev` for local frontend plus local functions/entities, and keep uploaded files and personal data out of fixtures. Local Base44 entity data is in-memory and resets on restart. Avoid `base44 dev --remote` for routine work because repository setup notes say that mode writes to hosted production data.
+Run the frontend with `npm run dev`. There is no backend yet: scheme data is a sample file and saved items live in browser local storage. When a backend is chosen, give it a local or isolated development setup, keep uploaded files and personal data out of fixtures, and never point routine local work at production data.
 
 ### Vercel evaluation
 
-The frontend uses Vite, which Vercel supports as a Git-connected project. The proposed first Vercel use is a Preview deployment for a non-production branch or pull request. Keep Base44 as the backend during this evaluation.
+The frontend uses Vite, which Vercel supports as a Git-connected project. The proposed first Vercel use is a Preview deployment for a non-production branch or pull request. Today the app is a static frontend, so this can start before the backend exists.
 
 Before using Vercel as the production frontend, verify on a Preview URL:
 
-1. Base44 app settings load and auth/login redirects work from the Vercel origin.
-2. SDK calls to Base44 functions work with the intended CORS/origin configuration.
-3. Preview and production configuration can point to the right Base44 app without exposing secrets.
+1. Once there is a backend, auth/login redirects work from the Vercel origin.
+2. Calls from the frontend to backend functions work with the intended CORS/origin configuration.
+3. Preview and production configuration can point to the right backend environment without exposing secrets.
 4. Direct navigation to React routes works after refresh.
-5. No test or demo data can be written to the production Base44 app.
+5. No test or demo data can be written to the production backend.
 
-If any of these fail or depend on unsupported Base44 hosting behavior, publish the app through Base44 Builder first and revisit the hosting split with evidence. Do not run two production frontends as competing sources of truth.
+If any of these fail, fix them on Preview before promoting, or revisit the hosting choice with evidence. Do not run two production frontends as competing sources of truth.
 
 ### Release flow if the preview evaluation succeeds
 
@@ -185,22 +185,22 @@ If any of these fail or depend on unsupported Base44 hosting behavior, publish t
 - Set the Vercel root directory to the repository root and use the existing Vite build command and output.
 - Let pull requests create Preview deployments; review the actual Preview URL before merge.
 - Keep production tied to `main`, with Vercel environment variables separated for Preview and Production.
-- Keep secrets in Vercel/Base44 configuration, never in Git or `VITE_*` variables. Only public configuration belongs in frontend-exposed variables.
-- Use Base44's supported publish/sync process for backend functions and entities; Vercel hosts the frontend only.
+- Keep secrets in Vercel and backend configuration, never in Git or `VITE_*` variables. Only public configuration belongs in frontend-exposed variables.
+- Release backend functions and schema through the chosen backend's own deploy process; Vercel hosts the frontend only.
 - Add a custom domain only after auth, function calls, routing, and rollback have been confirmed.
 - Keep a simple rollback path to the previous frontend deployment and document how to disable or revert a bad backend change.
 
-The current README documents Base44 Builder publishing and warns that its CLI deploy bypasses the Git sync workflow. Treat that as the backend release process until the team deliberately changes it.
+The backend release process is decided together with the backend choice, and documented in the README when it exists.
 
 ## Environments and data handling
 
 | Environment | Frontend | Backend/data |
 | --- | --- | --- |
-| Local | `base44 dev` frontend | Local Base44 functions; ephemeral entity data |
-| Preview | Vercel Preview if integration succeeds | Isolated preview Base44 app/configuration, or no writes |
-| Production | One chosen public frontend host | Production Base44 app and user data |
+| Local | `npm run dev` | None yet (sample data, browser local storage); later a local or isolated dev backend |
+| Preview | Vercel Preview if integration succeeds | Isolated preview backend, or no writes |
+| Production | One chosen public frontend host | Production backend and user data |
 
-A separate preview Base44 app is preferred before real user data exists. Never point PR previews at production writes. Add environment variables through the platform dashboards or secure CLI pull; do not commit `.env.local`, Base44 app IDs, tokens, or Vercel project credentials.
+A separate preview backend is preferred before real user data exists. Never point PR previews at production writes. Add environment variables through the platform dashboards or secure CLI pull; do not commit `.env.local`, backend project keys, tokens, or Vercel project credentials.
 
 ## Quality gates
 
@@ -221,7 +221,7 @@ The implementation should make “prepared” and “submitted” impossible to 
 
 1. Does the first pilot support all of Ireland or selected authorities?
 2. Which three to five schemes are in the curated catalogue?
-3. Does Base44 support the necessary isolated preview backend and Vercel-origin auth/function calls?
+3. Which backend do we use, and does it support an isolated preview environment and Vercel-origin auth/function calls?
 4. Which files can be parsed reliably, and which should only be attached to a human-prepared pack?
 5. What retention period and deletion behavior should apply to original files and extracted facts?
 6. Which supported application route, if any, is safe enough to automate first?
