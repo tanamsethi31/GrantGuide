@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, ArrowUp, Check, Mic, RotateCcw } from "lucide-react";
 import { grantById } from "@/data/grants";
+import Waveform from "@/components/voice/Waveform";
 import { formatEur, headline } from "@/lib/grantDisplay";
 
 // A scripted mock-up of the voice flow for the pitch page. Nothing is recorded:
@@ -16,23 +17,6 @@ const SEARCH_MS = 700;
 
 const HER_GRANT = grantById("IE-HOUSING-OLDER-PEOPLE");
 const ALSO_CHECK = ["IE-SEAI-WARMER-HOMES", "IE-DSP-FUEL-ALLOWANCE"].map(grantById).filter(Boolean);
-
-function Waveform() {
-  const reduce = useReducedMotion();
-  return (
-    <span className="flex items-center gap-1 h-6" aria-hidden="true">
-      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-        <motion.span
-          key={i}
-          className="w-1 rounded-full bg-[#15803D]"
-          initial={{ height: 6 }}
-          animate={reduce ? { height: 12 } : { height: [6, 22 - (i % 3) * 5, 8, 18, 6] }}
-          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.08, ease: "easeInOut" }}
-        />
-      ))}
-    </span>
-  );
-}
 
 export default function VoiceDemo() {
   const reduce = useReducedMotion();

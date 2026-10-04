@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Check, ExternalLink, FileText } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, FileText, Mic } from "lucide-react";
 import AirbnbHeader from "@/components/layout/AirbnbHeader";
+import VoiceInterview from "@/components/apply/VoiceInterview";
+import { DOCUMENTS } from "@/lib/applyQuestions";
 import { grantById } from "@/data/grants";
 import { COUNTIES } from "@/lib/counties";
 import { formatEur, typeLabel } from "@/lib/grantDisplay";
@@ -12,12 +14,6 @@ import { formatEur, typeLabel } from "@/lib/grantDisplay";
 
 const field = "w-full rounded-xl border border-[#b0b0b0] px-4 py-3 text-base bg-white outline-none focus:border-[#222222]";
 const label = "block text-sm font-semibold mb-2";
-
-const DOCUMENTS = [
-  "Proof of household income",
-  "Proof that you own or live in the home",
-  "A quote for the work that's needed",
-];
 
 function Section({ title, children }) {
   return (
@@ -46,6 +42,9 @@ export default function Apply() {
     confirm: false,
   });
   const [done, setDone] = useState(false);
+  // intro: choose voice or form; chat: spoken questions; form: fill in / check answers
+  const [mode, setMode] = useState("intro");
+  const [fromChat, setFromChat] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
   const toggleDoc = (d) => setForm((f) => ({ ...f, docs: f.docs.includes(d) ? f.docs.filter((x) => x !== d) : [...f.docs, d] }));
 
@@ -125,8 +124,47 @@ export default function Apply() {
             )}
             <p className="mt-6 text-sm text-[#717171]">This is a preview of how GrantGuide will help you apply.</p>
           </div>
+        ) : mode === "intro" ? (
+          <div className="mt-10 rounded-3xl border border-[#dddddd] shadow-[0_6px_16px_rgba(0,0,0,0.08)] p-6 sm:p-8 text-center">
+            <span className="mx-auto w-16 h-16 rounded-full bg-[#F0FDF4] text-[#15803D] flex items-center justify-center">
+              <Mic className="w-7 h-7" />
+            </span>
+            <h2 className="mt-5 text-2xl font-semibold">Answer out loud</h2>
+            <p className="mt-2 text-[#717171]">
+              I'll ask you each question and fill in the form for you. You can talk, type or tap an answer.
+            </p>
+            <button
+              type="button"
+              onClick={() => setMode("chat")}
+              className="mt-6 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-[#15803D] hover:bg-[#166534] text-white text-lg font-semibold px-8 py-4 transition"
+            >
+              <Mic className="w-5 h-5" /> Start talking
+            </button>
+            <button type="button" onClick={() => setMode("form")} className="block mx-auto mt-4 text-sm text-[#717171] underline hover:text-[#222222]">
+              Fill in the form myself instead
+            </button>
+          </div>
+        ) : mode === "chat" ? (
+          <div className="mt-10">
+            <VoiceInterview
+              form={form}
+              setForm={setForm}
+              onDone={() => {
+                setFromChat(true);
+                setMode("form");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              onSkip={() => setMode("form")}
+            />
+          </div>
         ) : (
           <form onSubmit={submit} className="mt-10">
+            {fromChat && (
+              <div className="mb-8 rounded-2xl bg-[#F0FDF4] p-5">
+                <p className="text-lg font-semibold">Check your answers</p>
+                <p className="text-[#717171] mt-1">Filled in from our conversation. Change anything that's wrong, then tick the box at the bottom.</p>
+              </div>
+            )}
             <Section title="About you">
               <div>
                 <label htmlFor="name" className={label}>Full name</label>
