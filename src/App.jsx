@@ -7,6 +7,7 @@ import Search from './pages/Search';
 import Saved from './pages/Saved';
 import Profile from './pages/Profile';
 import Landing from './pages/Landing';
+import Apply from './pages/Apply';
 
 // No accounts yet: saved grants and profile details live in this browser.
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/saved" element={<Saved />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/about" element={<Landing />} />
+        <Route path="/apply/:id" element={<Apply />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       <Toaster />

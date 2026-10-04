@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView, useReducedMotion } from "framer-motion";
-import { ArrowRight, ArrowUp, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import AirbnbHeader from "@/components/layout/AirbnbHeader";
+import VoiceDemo from "@/components/landing/VoiceDemo";
 import sourceRegister from "@/data/catalogue/sources.json";
-import { grantById } from "@/data/grants";
-import { headline, formatEur } from "@/lib/grantDisplay";
 import { IMG } from "@/lib/supportImages";
 
 // Pitch-style landing page: the problem, one stat, the user.
@@ -22,11 +21,6 @@ const LEVELS = [
 ];
 const colorFor = (level) => LEVELS.find((l) => l.level === level)?.color || "#FFFFFF";
 const countOf = (level) => SOURCES.filter((s) => s.level === level).length;
-
-// Real catalogue schemes relevant to an older person whose heating has failed.
-// The headline grant pays for essential home repairs; its amount comes from the catalogue.
-const HER_GRANT = grantById("IE-HOUSING-OLDER-PEOPLE");
-const ALSO_CHECK = ["IE-SEAI-WARMER-HOMES", "IE-DSP-FUEL-ALLOWANCE"].map(grantById).filter(Boolean);
 
 // Photos scattered around the headline (desktop only).
 const SCATTER = [
@@ -195,41 +189,9 @@ function UserSlide() {
             <span className="text-[#717171]">Her heating stopped working.</span>
           </h2>
 
-          {/* What that looks like on GrantGuide, using real catalogue entries. */}
-          <div className="mt-10 rounded-3xl border border-[#dddddd] bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] p-5">
-            <div className="flex items-center gap-3 rounded-2xl border border-[#ebebeb] bg-[#f7f7f7] pl-4 pr-2 py-2">
-              <p className="flex-1 text-base text-[#222222]">My heating stopped working and I'm 88</p>
-              <span className="w-9 h-9 shrink-0 rounded-full bg-[#15803D] text-white flex items-center justify-center" aria-hidden="true">
-                <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
-              </span>
-            </div>
-            {HER_GRANT && (
-              <div className="mt-5 rounded-2xl bg-[#14532D] text-white p-5">
-                <p className="text-sm text-white/80">She may be able to get</p>
-                <p className="mt-1 text-4xl sm:text-5xl font-bold tracking-tight">
-                  up to <span className="text-[#86EFAC]">{formatEur(HER_GRANT.amountEur)}</span>
-                </p>
-                <p className="mt-2 font-semibold">{HER_GRANT.name}</p>
-                <p className="mt-1 text-sm text-white/75">
-                  For essential repairs so older people can stay at home. The amount depends on household income.
-                </p>
-              </div>
-            )}
-            <p className="mt-5 mb-1 text-sm font-semibold text-[#717171]">Also worth checking</p>
-            <ul className="divide-y divide-[#ebebeb]">
-              {ALSO_CHECK.map((g) => {
-                const h = headline(g);
-                return (
-                  <li key={g.id} className="flex items-center justify-between gap-4 py-3">
-                    <span className="font-semibold text-[#222222]">{g.name.split(" | ")[0]}</span>
-                    <span className="shrink-0 text-sm text-[#15803D] font-semibold">
-                      {h.value}
-                      {g.amountEur != null && h.sub ? ` ${h.sub.split(" ")[0].toLowerCase()}` : ""}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+          {/* Tap the mic to play the voice flow (a scripted mock-up). */}
+          <div className="mt-10">
+            <VoiceDemo />
           </div>
 
           <Link
